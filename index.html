@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Generador de Códigos QR!</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrious/dist/qrious.min.js"></script>
+  <style>
+    /* ✨ Estilos generales para la página ✨ */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* 📦 Contenedor principal del contenido 📦 */
+    .container {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    /* 📝 Estilos para los encabezados 📝 */
+    h2 {
+      color: #3498db;
+      margin-bottom: 20px;
+    }
+
+    /* 🖋️ Estilos para las etiquetas de los formularios 🖋️ */
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    /* ⌨️ Estilos para los campos de entrada de texto ⌨️ */
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"] {
+      display: block;
+      width: calc(100% - 22px);
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    /* 🚀 Estilo llamativo para el botón de generar QR 🚀 */
+    button[type="submit"],
+    button[onclick="volver()"] {
+      background-color: #2ecc71;
+      color: white;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background-color 0.3s ease;
+      margin-top: 15px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"]:hover,
+    button[onclick="volver()"]:hover {
+      background-color: #27ae60;
+    }
+
+    /* 🖼️ Estilos para el contenedor del código QR 🖼️ */
+    #qrPage {
+      display: none;
+    }
+
+    /* 📱 Mensaje para escanear el QR 📱 */
+    #qrPage p {
+      color: #777;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    /* 🎨 Estilos para el lienzo del QR 🎨 */
+    #qrCanvas {
+      margin-bottom: 20px;
+      border: 4px solid #f0f0f0;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ⏪ Estilo para el botón de volver ⏪ */
+    button[onclick="volver()"] {
+      background-color: #3498db;
+    }
+
+    button[onclick="volver()"]:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="formPage">
+      <h2>¡Crea tu Código QR de Contacto!</h2>
+      <form id="contactForm">
+        <label for="nombre">Nombre Completo:</label>
+        <input type="text" id="nombre" placeholder="Ej: Juan Pérez" required>
+
+        <label for="telefono">Número de Teléfono:</label>
+        <input type="tel" id="telefono" placeholder="Ej: +1 809-xxx-xxxx" required>
+
+        <label for="correo">Correo Electrónico:</label>
+        <input type="email" id="correo" placeholder="Ej: juan.perez@email.com">
+
+        <label for="empresa">Empresa (Opcional):</label>
+        <input type="text" id="empresa" placeholder="Ej: Mi Empresa">
+
+        <label for="direccion">Dirección (Opcional):</label>
+        <input type="text" id="direccion" placeholder="Ej: Calle Principal #123">
+
+        <button type="submit">✨ ¡Generar Código QR! ✨</button>
+      </form>
+    </div>
+
+    <div id="qrPage">
+      <h2>¡Tu Código QR está Listo!</h2>
+      <p>📱 ¡Escanea este código con la cámara de tu teléfono para guardar mi contacto!</p>
+      <canvas id="qrCanvas"></canvas>
+      <button onclick="volver()">⏪ Volver al Formulario ⏪</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const formPage = document.getElementById('formPage');
+    const qrPage = document.getElementById('qrPage');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // 📥 Obteniendo los datos del formulario 📥
+      const nombre = document.getElementById('nombre').value;
+      const telefono = document.getElementById('telefono').value;
+      const correo = document.getElementById('correo').value;
+      const empresa = document.getElementById('empresa').value;
+      const direccion = document.getElementById('direccion').value;
+
+      // 🏗️ Creando la estructura de la tarjeta de contacto virtual (vCard) 🏗️
+      const vCard = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${nombre}
+ORG:${empresa}
+TEL;TYPE=CELL:${telefono}
+EMAIL:${correo}
+ADR:${direccion}
+END:VCARD`.trim();
+
+      // 🎨 Generando el código QR con la información de la vCard 🎨
+      const qr = new QRious({
+        element: document.getElementById('qrCanvas'),
+        size: 250,
+        value: vCard
+      });
+
+      // 🔄 Mostrando la sección del QR y ocultando el formulario 🔄
+      formPage.style.display = 'none';
+      qrPage.style.display = 'block';
+    });
+
+    function volver() {
+      // ◀️ Volviendo a mostrar la sección del formulario ◀️
+      qrPage.style.display = 'none';
+      formPage.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
